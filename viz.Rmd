@@ -200,7 +200,9 @@ ggsave('ggp_weather.pdf',ggp_weather,width = 8, height = 6)
 ```
 
 
-```{r}
-
+```{r fig.width=6, fig.asp=.6}
+weather_df %>% 
+  ggplot(aes(x=date,y=tmax,colour = name))+
+  geom_point()
 ```
 

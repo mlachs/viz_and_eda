@@ -371,3 +371,14 @@ ggsave('ggp_weather.pdf',ggp_weather,width = 8, height = 6)
 
     ## Warning: Removed 17 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
+
+``` r
+weather_df %>% 
+  ggplot(aes(x=date,y=tmax,colour = name))+
+  geom_point()
+```
+
+    ## Warning: Removed 17 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](viz_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
