@@ -50,3 +50,61 @@ ggp_weather_scatterplot =
 ggp_weather_scatterplot
 ```
 
+```{r}
+weather_df %>% 
+  filter(is.na(tmax))
+
+```
+
+## Fancier scatterplot 
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x= tmin,y=tmax,colour = name))+
+  geom_point(alpha=.3, size = .8)+
+  geom_smooth(se=FALSE)
+```
+
+where you define the aes matters 
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x= tmin,y=tmax))+
+  geom_point(aes(colour = name),alpha=.3, size = .8)+
+  geom_smooth(se=FALSE)
+```
+
+
+use faceting 
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x= tmin, y=tmax, colour = name))+
+  geom_point(alpha=.3)+
+  geom_smooth(se=FALSE)+
+  facet_grid(.~name)
+```
+
+Lets male a somewhat mare intresting scatterplot 
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x=date,y=tmax,colour = name,size = prcp))+
+  geom_point(alpha=.3)+
+  geom_smooth(se=FALSE)+
+  facet_grid(.~name)
+```
+
+## Learning assestment 
+
+```{r}
+weather_df %>% 
+  filter(name=="CentralPark_NY") %>% 
+  mutate(tempfmin = tmin* 9/5 + 32 ,tempfmax =tmax* 9/5 + 32 ) %>% 
+  ggplot(aes(x= tempfmin,y=tempfmax))+
+  geom_point()+
+  geom_smooth(method = 'lm',se=FALSE)
+
+```
+
+
