@@ -108,3 +108,99 @@ weather_df %>%
 ```
 
 
+```{r}
+weather_df %>% 
+  ggplot(aes(x= tmin,y=tmax))+
+  geom_hex()
+```
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x=tmin,y=tmax))+
+  geom_point(color='blue')
+
+```
+
+## Unvarite plotss
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x=tmin,fill = name))+
+  geom_histogram(position = 'dodge')
+```
+
+how would I fix this
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x=tmin,fill=name))+
+  geom_histogram()+
+  facet_grid(.~name)
+```
+
+maybe a density plot 
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x=tmin, fill= name))+
+  geom_density(alpha=.3)
+```
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x=name,y=tmin,fill = name))+
+  geom_boxplot()
+```
+
+violin plotss
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x=name,y=tmin,fill =name))+
+  geom_violin()
+```
+
+ridge plots
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x=tmin, y=name))+
+  geom_density_ridges()
+```
+
+## Learning assesment 
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x=date,y=prcp,colour = name))+
+  geom_point()
+```
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x=name,y=prcp))+
+  geom_boxplot()
+```
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x=prcp)) +
+  geom_histogram()
+```
+
+SAving and embending plots
+
+```{r}
+ggp_weather=
+  weather_df %>% 
+  ggplot(aes(x=date,y=tmax,colour = name))+
+  geom_point()
+
+ggsave('ggp_weather.pdf',ggp_weather,width = 8, height = 6)
+```
+
+
+```{r}
+
+```
+
