@@ -8,6 +8,7 @@ output: github_document
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(patchwork)
+library(haven)
 ```
 
 
@@ -189,5 +190,69 @@ ggp_tmax_date_p =
   geom_smooth(se = FALSE) + 
   theme(legend.position = "bottom")
 (ggp_tmax_tmin+ggp_tmax_density)/ggp_tmax_date_p
+```
+
+## Data manipulation 
+
+```{r}
+weather_df %>% 
+  mutate(name=fct_relevel(name, c('Molokai_HI','CentralPark_NY','Waterhole_WA'))) %>% 
+  ggplot(aes(x=name,y=tmax,fill = name))+
+  geom_violin(alpha=.5)
+```
+
+
+PULSE data next
+
+```{r}
+pulse_df=
+  read_sas('data_import_examples/public_pulse_data.sas7bdat') %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(names_to = "visit",cols = 'bdi_score_bl':'bdi_score_12m',values_to = 'bdi_score',names_prefix = "bdi_score_") %>% 
+  mutate(visit= ifelse(visit=='bl','00m',visit))
+
+pulse_df%>% 
+  ggplot(aes(x=visit,y=bdi_score))+
+  geom_boxplot()
+```
+
+learning assesment FAS
+
+```{r}
+FAS_litters_df= 
+  read_csv('data_import_examples/FAS_litters.csv') %>% 
+  janitor::clean_names() %>%
+  separate(group, into = c("dose", "treat_day"), sep = 3)
+
+FAS_pups_df=
+  read_csv('data_import_examples/FAS_pups.csv') %>% 
+  janitor::clean_names()
+
+FAS_df=
+  FAS_litters_df %>% 
+  full_join(FAS_pups_df,join_by(litter_number==litter_number))
+```
+
+
+
+```{r}
+litter_data = 
+  read_csv("data_import_examples//FAS_litters.csv", na = c("NA", ".", "")) |>
+  janitor::clean_names() |>
+  separate(group, into = c("dose", "day_of_tx"), sep = 3)
+
+pup_data = 
+  read_csv("data_import_examples//FAS_pups.csv", na = c("NA", ".", "")) |>
+  janitor::clean_names() %>% 
+  pivot_longer(cols = 'pd_ears':'pd_walk',names_to = 'outcome',values_to = 'pn_day',names_prefix = 'pd_')
+
+FAS_df=
+  left_join(pup_data,litter_data,by ='litter_number')
+
+FAS_df %>% 
+  drop_na(day_of_tx) %>% 
+  ggplot(aes(x=dose,y=pn_day))+
+  geom_boxplot()+
+  facet_grid(day_of_tx~outcome)
 ```
 

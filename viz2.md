@@ -273,3 +273,123 @@ ggp_tmax_date_p =
     ## (`geom_point()`).
 
 ![](viz2_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+## Data manipulation
+
+``` r
+weather_df %>% 
+  mutate(name=fct_relevel(name, c('Molokai_HI','CentralPark_NY','Waterhole_WA'))) %>% 
+  ggplot(aes(x=name,y=tmax,fill = name))+
+  geom_violin(alpha=.5)
+```
+
+    ## Warning: Removed 17 rows containing non-finite outside the scale range
+    ## (`stat_ydensity()`).
+
+![](viz2_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+PULSE data next
+
+``` r
+pulse_df=
+  read_sas('data_import_examples/public_pulse_data.sas7bdat') %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(names_to = "visit",cols = 'bdi_score_bl':'bdi_score_12m',values_to = 'bdi_score',names_prefix = "bdi_score_") %>% 
+  mutate(visit= ifelse(visit=='bl','00m',visit))
+
+pulse_df%>% 
+  ggplot(aes(x=visit,y=bdi_score))+
+  geom_boxplot()
+```
+
+    ## Warning: Removed 879 rows containing non-finite outside the scale range
+    ## (`stat_boxplot()`).
+
+![](viz2_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+learning assesment FAS
+
+``` r
+FAS_litters_df= 
+  read_csv('data_import_examples/FAS_litters.csv') %>% 
+  janitor::clean_names() %>%
+  separate(group, into = c("dose", "treat_day"), sep = 3)
+```
+
+    ## Rows: 49 Columns: 8
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (4): Group, Litter Number, GD0 weight, GD18 weight
+    ## dbl (4): GD of Birth, Pups born alive, Pups dead @ birth, Pups survive
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+FAS_pups_df=
+  read_csv('data_import_examples/FAS_pups.csv') %>% 
+  janitor::clean_names()
+```
+
+    ## Rows: 313 Columns: 6
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (2): Litter Number, PD ears
+    ## dbl (4): Sex, PD eyes, PD pivot, PD walk
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+FAS_df=
+  FAS_litters_df %>% 
+  full_join(FAS_pups_df,join_by(litter_number==litter_number))
+```
+
+``` r
+litter_data = 
+  read_csv("data_import_examples//FAS_litters.csv", na = c("NA", ".", "")) |>
+  janitor::clean_names() |>
+  separate(group, into = c("dose", "day_of_tx"), sep = 3)
+```
+
+    ## Rows: 49 Columns: 8
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (2): Group, Litter Number
+    ## dbl (6): GD0 weight, GD18 weight, GD of Birth, Pups born alive, Pups dead @ ...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+pup_data = 
+  read_csv("data_import_examples//FAS_pups.csv", na = c("NA", ".", "")) |>
+  janitor::clean_names() %>% 
+  pivot_longer(cols = 'pd_ears':'pd_walk',names_to = 'outcome',values_to = 'pn_day',names_prefix = 'pd_')
+```
+
+    ## Rows: 313 Columns: 6
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (1): Litter Number
+    ## dbl (5): Sex, PD ears, PD eyes, PD pivot, PD walk
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+FAS_df=
+  left_join(pup_data,litter_data,by ='litter_number')
+
+FAS_df %>% 
+  drop_na(day_of_tx) %>% 
+  ggplot(aes(x=dose,y=pn_day))+
+  geom_boxplot()+
+  facet_grid(day_of_tx~outcome)
+```
+
+    ## Warning: Removed 42 rows containing non-finite outside the scale range
+    ## (`stat_boxplot()`).
+
+![](viz2_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
