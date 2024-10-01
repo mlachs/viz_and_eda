@@ -85,3 +85,109 @@ weather_df %>%
   )+ viridis::scale_color_viridis(discrete = TRUE)
 ```
 
+## Themes
+
+```{r}
+ggp_scallterplot=
+  weather_df %>% 
+  ggplot(aes(x=tmin, y=tmax,colour = name))+
+  geom_point(alpha =.3)+
+  labs(
+    title = "Temp Scatterplot",
+    x = 'Minimum Temp (C)',
+    y= 'MAximum Temp (C)',
+    color = 'Location',
+    caption = 'Weather data taken from rnoaa package from three stations'
+  )+ viridis::scale_color_viridis(discrete = TRUE)
+```
+
+```{r}
+ggp_scallterplot +
+  theme(legend.position = 'bottom')
+```
+
+```{r}
+ggp_scallterplot+
+  theme_bw()+
+  theme(legend.position = 'bottom')
+
+```
+
+order matters
+
+```{r}
+ggp_scallterplot +
+  theme(legend.position = 'bottom')+
+  theme_bw()
+```
+
+```{r}
+ggp_scallterplot+
+  theme_minimal()+
+  theme(legend.position = 'bottom')
+```
+
+
+learnng assesment 
+```{r}
+weather_df %>% 
+  ggplot(aes(x=date,y=tmax,colour = name))+
+  geom_point(alpha=.3)+
+  geom_smooth(se=FALSE)+
+  labs(x = 'Date', 
+       y = 'Maximum Temp (C)',
+       title = 'Sasonal Variation in Max Temp')+
+  viridis::scale_color_viridis(discrete = TRUE)+
+  theme_minimal()+
+  theme(legend.position = 'bottom')
+```
+
+extra bonus stuff in ggplot
+
+
+use different data sets in different geoms
+```{r}
+cental_park_df = 
+  weather_df %>% 
+  filter(name=='CentralPark_NY')
+
+molokai_df=
+  weather_df %>% 
+  filter(name=='Molokai_HI')
+
+molokai_df %>% 
+  ggplot(aes(x=date,y=tmax, color = name))+
+  geom_point()+
+  geom_line(data=cental_park_df)
+```
+
+multiple panals
+
+```{r}
+
+weather_df %>% 
+  ggplot(aes(x=tmax,fill = name))+
+  geom_density()+
+  facet_grid(.~name)
+```
+
+```{r}
+ggp_tmax_tmin =
+  weather_df %>% 
+  ggplot(aes(x=tmin,y=tmax,color=name))+
+  geom_point(alpha=.3)
+
+ggp_tmax_density =
+  weather_df %>% 
+  ggplot(aes(x=tmax,,fill=name))+
+  geom_density(alpha=.3)
+
+ggp_tmax_date_p = 
+  weather_df |> 
+  ggplot(aes(x = date, y = tmax, color = name)) + 
+  geom_point(alpha = .5) +
+  geom_smooth(se = FALSE) + 
+  theme(legend.position = "bottom")
+(ggp_tmax_tmin+ggp_tmax_density)/ggp_tmax_date_p
+```
+
