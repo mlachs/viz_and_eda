@@ -7,7 +7,7 @@ output: github_document
 
 ```{r setup, include=FALSE}
 library(tidyverse)
-
+library(haven)
 ```
 
 
@@ -106,7 +106,138 @@ weather_df %>%
 
 ## general numeric summarys
 
+lets try some other useful summaries
+
+```{r}
+weather_df %>% 
+  group_by(name,month) %>% 
+  summarise(
+    mean_tmax= mean(tmax, na.rm = TRUE),
+    median_tmin= median(tmin, na.rm =TRUE),
+    sd_pcrp= sd(prcp, na.rm=TRUE)
+    ) %>% 
+  ggplot(aes(x=month,y=mean_tmax,color=name))+
+  geom_point()+geom_line()
+```
+
+format for readers
+
+```{r}
+weather_df %>% 
+  group_by(name,month) %>% 
+  summarise(
+    mean_tmax= mean(tmax, na.rm = TRUE)
+    ) %>% 
+  pivot_wider(names_from = name, values_from = mean_tmax)%>% 
+  knitr::kable(digits = 3)
+```
+
+## grouped mutates
+
+```{r}
+weather_df %>% 
+  group_by(name) %>% 
+  mutate(mean_tmax =mean(tmax, na.rm = TRUE),
+         centered_tmax = tmax- mean_tmax) %>% 
+  ggplot(aes(x=date, y = centered_tmax, colour = name))+
+  geom_point()
+```
+
+
+wwindow function 
+
+Find hottest coldest days 
+
+```{r}
+weather_df %>% 
+  group_by(name) %>% 
+  mutate(
+    temp_rank = min_rank(desc(tmax))
+  ) %>% 
+  filter(temp_rank<4)
+
+
+weather_df %>% 
+  group_by(name) %>% 
+  filter(min_rank(tmax)<4) %>% 
+  arrange(tmax)
+```
+
+
+```{r}
+weather_df %>% 
+  group_by(name) %>% 
+  mutate(
+    lagged_tmax=lag(tmax),
+    temp_change = tmax-lagged_tmax
+  ) %>% 
+  filter(min_rank(temp_change)<3)
+```
+
 ```{r}
 
+weather_df %>% 
+  group_by(name) %>% 
+  mutate(
+    lagged_tmax=lag(tmax),
+    temp_change = tmax-lagged_tmax
+  ) %>% 
+  summarise(
+    sd_tmax_change = sd(temp_change, na.rm=TRUE)
+  )
+
+```
+
+LEarning assesment 
+
+```{r}
+pulse_df=
+  read_sas('data_import_examples/public_pulse_data.sas7bdat') %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(
+    cols = 'bdi_score_bl':'bdi_score_12m',
+    names_to = 'visit',
+    names_prefix = 'bdi_score_',
+    values_to = 'bdi_score'
+  )
+
+pulse_df %>% 
+  group_by(visit) %>% 
+  summarise(
+    bdi_mean=mean(bdi_score,na.rm = TRUE),
+    bdi_median=median(bdi_score, na.rm=TRUE)) %>% 
+  knitr::kable(digits = 1)
+```
+
+## FAS
+
+```{r}
+litters_df =
+  read_csv('data_import_examples/FAS_litters.csv', na=c('NA','.','')) %>% 
+  janitor::clean_names() %>% 
+  separate(
+    group,into= c("dose","treat_day"),sep=3
+  )
+
+pups_df=
+  read_csv('data_import_examples/FAS_pups.csv', na=c('NA','.','')) %>% 
+  janitor::clean_names()
+
+fas_df=
+  left_join(pups_df,litters_df, by ='litter_number')
+```
+
+compute table we care about
+
+```{r}
+fas_df %>% 
+  drop_na(dose) %>% 
+  group_by(dose,treat_day) %>% 
+  summarise(mean_pivot=mean(pd_pivot, na.rm =TRUE)) %>% 
+  pivot_wider(
+    names_from = treat_day,
+    values_from = mean_pivot
+  ) %>% 
+  knitr::kable(digits = 2)
 ```
 
